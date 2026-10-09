@@ -3,6 +3,8 @@
 > **中文**：用本机 Mail.app + MCP，让 AI 帮你从邮件里揪出扣款、续费和安全告警，其余营销信再按需标已读或退订。  
 > **English**: Local Mail.app MCP for AI triage—surface billing, renewals, and security alerts; mark noise read or unsubscribe only when you say so.
 
+**平台**：仅 **macOS** 可用；须安装并登录系统自带的 **「邮件」Mail.app**（账号在 Mail 里配置好后，本 MCP 通过 JXA 读写该应用中的邮件）。Windows / Linux 不支持。
+
 **隐私**：全程在本机 macOS 运行（Mail.app + JXA）；邮件内容只出现在你的 MCP 客户端对话里，**不上传邮箱到云端**。默认无网络；仅在你明确同意退订时，才会向发件人提供的退订链接发起 HTTP 请求。
 
 ## 为什么做

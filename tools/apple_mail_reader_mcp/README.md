@@ -3,6 +3,8 @@
 > **中文**：用本机 Mail.app + MCP，让 AI 帮你从邮件里揪出扣款、续费和安全告警，其余营销信再按需标已读或退订。  
 > **English**: Local Mail.app MCP for AI triage—surface billing, renewals, and security alerts; mark noise read or unsubscribe only when you say so.
 
+**平台 / Platform**：**macOS only.** Requires Apple’s built-in **Mail.app** with at least one account set up. Not for Windows or Linux.
+
 **隐私 / Privacy**：All on-device (Mail.app + JXA). Mail stays on your Mac; no cloud inbox sync for this tool. No network by default—HTTP only when you approve unsubscribe.
 
 ## 背景
@@ -21,7 +23,8 @@
 
 ## Requirements
 
-- macOS with **Mail.app** configured
+- **macOS**（无其他操作系统支持）
+- 系统自带 **Mail.app** 已安装，且已添加/登录邮箱账号
 - Python **3.11+**
 - [uv](https://github.com/astral-sh/uv) recommended
 - 任意支持 MCP 的客户端
