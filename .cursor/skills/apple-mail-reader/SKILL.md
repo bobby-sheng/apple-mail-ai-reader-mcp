@@ -2,21 +2,20 @@
 name: apple-mail-reader
 description: >-
   通过 macOS Mail.app + JXA 的本地 MCP 做收件箱分拣：扫描今日/未读、金钱与安全必看、营销与 Digest 经用户确认后标已读或退订。
-  用于「今天邮件」「收件箱」「Mail.app」「标已读」「退订」、apple-mail-reader MCP，或用户要求不用完整磁盘访问、只走自动化读邮件时。
+  用于「今天邮件」「收件箱」「Mail.app」「标已读」「退订」、apple-mail-reader MCP。
 ---
 
 # Apple Mail 本地分拣（MCP）
 
-**原则**：默认 **Mail.app + JXA**（系统「自动化」权限），**不要**要求用户给 Cursor 完整磁盘访问。仅当用户明确要更快全库检索时，才提及可选环境变量 `APPLE_MAIL_USE_ENVELOPE=1`（需 FDA）。
+**读信方式**：`osascript`（JXA）控制本机 **Mail.app**，经脚本接口取主题、发件人、正文等。需在系统 **隐私与安全性 → 自动化** 中，允许当前宿主（如 Cursor）控制「邮件」。Mail 可在后台运行，不必把每封信在窗口里打开。
 
-**MCP 命名空间**：`user-apple-mail-reader`（以 Cursor 里配置的 server 名为准）。
+**MCP 命名空间**：`user-apple-mail-reader`（以实际配置的 server 名为准）。
 
 ## 扫描
 
-1. 先可选调用 `security_info`，确认 `default_backend` 为 `mail_app_jxa`、`envelope_opt_in` 为 false。
-2. 用户要看今日：`scan_unread_or_today(mode="today", limit=80)`。
-3. 只看未读：`mode="unread"` 或 `mode="unread_today"`。
-4. 若 `source` 不是 `mail_app_jxa` 或 today 报 Envelope 错误：提示用户在 Cursor **重启 MCP**，并确认 `mcp.json` 中 `APPLE_MAIL_USE_ENVELOPE=0`（或未设置）。
+1. 今日：`scan_unread_or_today(mode="today", limit=80)`。
+2. 未读：`mode="unread"` 或 `mode="unread_today"`。
+3. 扫不到信时：确认 Mail.app 已登录、自动化权限已开，并 **重启 MCP** 后再试。
 
 ## 分类与呈现（中文）
 
@@ -38,12 +37,12 @@ description: >-
 - **退订**：先 `get_unsubscribe_links` 或 `unsubscribe_message(execute=false)` 展示计划；用户同意后再 `execute=true` 或 `triage_batch`。`category_hint` 为 money/security/transactional 时**拒绝执行**。
 - 营销/Digest：列出编号，问用户「标已读 / 退订 / 跳过」。
 
-## JXA 原理（用户问起时简要说明）
+## JXA 与 Mail.app（用户问起时）
 
-`osascript` 通过 Apple Events 调用 Mail 脚本接口读 `subject` / `sender` / `content`，**不**直接读 `~/Library/Mail` 文件。Mail 可在后台被拉起，**不必**前台打开每一封信。
+脚本通过 Apple Events 问 Mail：某账号收件箱里最近若干封里，哪些符合「今日 / 未读」等条件。数据来自 Mail 已同步到本机的邮件，不是 IDE 自己去扫邮件库目录。
 
-限制：每个收件箱只扫最近若干封再按日期过滤，极深处或排序靠后的「今日」信可能漏扫。
+**限制**：每个收件箱只遍历最近一段邮件再按日期过滤，排序很靠后或很深的「今日」信有可能漏掉。
 
-## 安装与配置
+## 安装
 
 见仓库 `tools/apple_mail_reader_mcp/README.md`。
