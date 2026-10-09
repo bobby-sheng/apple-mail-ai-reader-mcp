@@ -1,8 +1,16 @@
 # apple-mail-reader-mcp
 
-Local [MCP](https://modelcontextprotocol.io/) server for **macOS Mail.app**: scan inbox, classify heuristically, mark read, and unsubscribe — without giving your IDE Full Disk Access.
+## 背景
 
-Default path: **JXA** (`osascript` → Mail.app). Optional fast path: SQLite Envelope Index (`APPLE_MAIL_USE_ENVELOPE=1`, requires FDA).
+没有固定「刷邮箱」的习惯，但**支付、订阅、额度超限、安全验证**往往只发邮件；漏看会造成多扣费、服务中断或风险滞后。本 MCP 让 Agent 通过本机 **Mail.app + JXA** 做每日分拣：突出金钱与安全，其余营销/Digest 在你同意后再标已读或退订。
+
+## 是什么
+
+Local MCP server for **macOS Mail.app**: scan inbox, heuristic classification, mark read, unsubscribe.
+
+读信路径：**JXA**（`osascript` → Mail.app）。在 **隐私与安全性 → 自动化** 中允许 IDE/终端控制「邮件」即可；Mail 可在后台运行，不必逐封打开窗口。
+
+可选：`APPLE_MAIL_USE_ENVELOPE=1` 走本地 Envelope Index 加速（需完整磁盘访问，一般不必开）。
 
 ## Requirements
 
@@ -10,21 +18,12 @@ Default path: **JXA** (`osascript` → Mail.app). Optional fast path: SQLite Env
 - Python **3.11+**
 - [uv](https://github.com/astral-sh/uv) recommended
 
-## Permissions
-
-| Mode | What to grant |
-|------|----------------|
-| **Default (JXA)** | **Privacy & Security → Automation**: allow **Cursor** (or your terminal) to control **Mail** |
-| Optional envelope index | **Full Disk Access** for the process reading `~/Library/Mail` — only if `APPLE_MAIL_USE_ENVELOPE=1` |
-
-Mail may launch in the background; no need to open each message in the UI.
-
 ## Install
 
 ```bash
-cd tools/apple_mail_reader_mcp
+cd tools/apple_mail_reader_mcp   # 若已克隆本仓库
 uv sync
-uv run apple-mail-reader-mcp   # smoke test (stdio MCP; Ctrl+C to exit)
+uv run apple-mail-reader-mcp   # stdio MCP  smoke test；Ctrl+C 退出
 ```
 
 ## Cursor `mcp.json`
@@ -33,37 +32,34 @@ uv run apple-mail-reader-mcp   # smoke test (stdio MCP; Ctrl+C to exit)
 {
   "mcpServers": {
     "apple-mail-reader": {
-      "command": "/absolute/path/to/tools/apple_mail_reader_mcp/.venv/bin/apple-mail-reader-mcp",
-      "env": {
-        "APPLE_MAIL_USE_ENVELOPE": "0"
-      }
+      "command": "/absolute/path/to/tools/apple_mail_reader_mcp/.venv/bin/apple-mail-reader-mcp"
     }
   }
 }
 ```
 
-Restart the MCP server in Cursor after code or config changes.
+修改代码或配置后，在 Cursor 里 **重启 MCP**。
 
 ## Tools
 
 | Tool | Purpose |
 |------|---------|
-| `security_info` | Trust manifest + backend (`mail_app_jxa` vs envelope) |
+| `security_info` | 能力说明与当前后端 |
 | `scan_unread_or_today` | `mode`: `unread` \| `today` \| `unread_today` |
-| `read_message` | Body by RFC `Message-ID` |
-| `get_unsubscribe_links` | Parse List-Unsubscribe (no network) |
-| `mark_as_read` | Set read in Mail.app |
-| `unsubscribe_message` | Plan (`execute=false`) or HTTP/mailto unsubscribe (`execute=true`) |
-| `triage_batch` | Batch mark read + unsubscribe (marketing/newsletter only) |
+| `read_message` | 按 RFC `Message-ID` 读正文 |
+| `get_unsubscribe_links` | 解析 List-Unsubscribe（不发 HTTP） |
+| `mark_as_read` | 在 Mail.app 标已读 |
+| `unsubscribe_message` | 预览或执行退订 |
+| `triage_batch` | 批量标已读 + 退订（仅营销/订阅类） |
 
 ## Agent skill
 
-Project skill for Cursor agents: [`.cursor/skills/apple-mail-reader/SKILL.md`](../../.cursor/skills/apple-mail-reader/SKILL.md) — daily triage workflow in Chinese.
+[`.cursor/skills/apple-mail-reader/SKILL.md`](../../.cursor/skills/apple-mail-reader/SKILL.md) — 中文分拣话术与流程。
 
 ## Heuristic categories
 
-`money`, `security`, `transactional`, `marketing`, `newsletter`, `other` — keyword/sender rules in `heuristics.py`. Not ML; verify money and security yourself.
+`money`, `security`, `transactional`, `marketing`, `newsletter`, `other` — 见 `heuristics.py`，非 ML，金钱与安全请自行确认。
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — [LICENSE](LICENSE)
