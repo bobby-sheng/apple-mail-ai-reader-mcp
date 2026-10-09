@@ -1,5 +1,9 @@
 # apple-mail-reader-mcp
 
+<p align="center">
+  <img src="../../docs/mail-app-icon.png" alt="macOS Mail.app" width="72" />
+</p>
+
 > **中文**：用本机 Mail.app + MCP，让 AI 帮你从邮件里揪出扣款、续费和安全告警，其余营销信再按需标已读或退订。  
 > **English**: Local Mail.app MCP for AI triage—surface billing, renewals, and security alerts; mark noise read or unsubscribe only when you say so.
 
