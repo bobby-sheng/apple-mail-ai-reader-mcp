@@ -7,9 +7,9 @@ description: >-
 
 # Apple Mail 本地分拣（MCP）
 
-**读信方式**：`osascript`（JXA）控制本机 **Mail.app**，经脚本接口取主题、发件人、正文等。需在系统 **隐私与安全性 → 自动化** 中，允许当前宿主（如 Cursor）控制「邮件」。Mail 可在后台运行，不必把每封信在窗口里打开。
+**读信方式**：`osascript`（JXA）控制本机 **Mail.app**，经脚本接口取主题、发件人、正文等。需在系统 **隐私与安全性 → 自动化** 中，允许当前 MCP 宿主（Cursor、Codex、Hermes、OpenClaw 等）控制「邮件」。Mail 可在后台运行，不必把每封信在窗口里打开。
 
-**MCP 命名空间**：`user-apple-mail-reader`（以实际配置的 server 名为准）。
+**MCP 工具名**：以客户端暴露的 server 名为准（例如 Cursor 里常为 `user-apple-mail-reader`）。
 
 ## 扫描
 

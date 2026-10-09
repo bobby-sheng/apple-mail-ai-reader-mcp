@@ -6,9 +6,11 @@
 
 ## 是什么
 
-Local MCP server for **macOS Mail.app**: scan inbox, heuristic classification, mark read, unsubscribe.
+**标准 MCP（stdio）** 服务，不绑定某一 IDE。凡能挂载 MCP server 的环境都可以用，例如 **Cursor、Codex、Hermes、OpenClaw** 等——由客户端把工具暴露给背后的模型即可。
 
-读信路径：**JXA**（`osascript` → Mail.app）。在 **隐私与安全性 → 自动化** 中允许 IDE/终端控制「邮件」即可；Mail 可在后台运行，不必逐封打开窗口。
+能力：扫描收件箱、启发式分类、标已读、退订（需你确认）。
+
+读信路径：**JXA**（`osascript` → Mail.app）。在 **隐私与安全性 → 自动化** 中，允许**启动该 MCP 的宿主应用**控制「邮件」；Mail 可在后台运行，不必逐封打开窗口。
 
 可选：`APPLE_MAIL_USE_ENVELOPE=1` 走本地 Envelope Index 加速（需完整磁盘访问，一般不必开）。
 
@@ -17,16 +19,21 @@ Local MCP server for **macOS Mail.app**: scan inbox, heuristic classification, m
 - macOS with **Mail.app** configured
 - Python **3.11+**
 - [uv](https://github.com/astral-sh/uv) recommended
+- 任意支持 MCP 的客户端
 
 ## Install
 
 ```bash
-cd tools/apple_mail_reader_mcp   # 若已克隆本仓库
+cd tools/apple_mail_reader_mcp   # 克隆本仓库后
 uv sync
-uv run apple-mail-reader-mcp   # stdio MCP  smoke test；Ctrl+C 退出
+uv run apple-mail-reader-mcp   # stdio MCP smoke test；Ctrl+C 退出
 ```
 
-## Cursor `mcp.json`
+## MCP 客户端配置
+
+本质是：用 **command** 启动 `apple-mail-reader-mcp`，传输为 **stdio**。各产品配置文件名不同，字段含义相同。
+
+**Cursor**（`mcp.json`）示例：
 
 ```json
 {
@@ -38,7 +45,9 @@ uv run apple-mail-reader-mcp   # stdio MCP  smoke test；Ctrl+C 退出
 }
 ```
 
-修改代码或配置后，在 Cursor 里 **重启 MCP**。
+**Codex / Hermes / OpenClaw** 等：在各自的 MCP 设置里填写同样的 `command`（或 `uv run --directory … apple-mail-reader-mcp`），保存后**重启 MCP 或客户端**。
+
+自动化权限授予给**真正跑 osascript 的进程所属 App**（不一定是 Python 本身）。
 
 ## Tools
 
@@ -52,9 +61,9 @@ uv run apple-mail-reader-mcp   # stdio MCP  smoke test；Ctrl+C 退出
 | `unsubscribe_message` | 预览或执行退订 |
 | `triage_batch` | 批量标已读 + 退订（仅营销/订阅类） |
 
-## Agent skill
+## Agent 分拣流程（可选）
 
-[`.cursor/skills/apple-mail-reader/SKILL.md`](../../.cursor/skills/apple-mail-reader/SKILL.md) — 中文分拣话术与流程。
+[`.cursor/skills/apple-mail-reader/SKILL.md`](../../.cursor/skills/apple-mail-reader/SKILL.md) — 中文话术：今日邮件怎么分类、何时标已读/退订。非 Cursor 用户可把该文件内容当作 system / 技能提示给模型。
 
 ## Heuristic categories
 
