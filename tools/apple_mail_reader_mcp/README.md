@@ -1,5 +1,10 @@
 # apple-mail-reader-mcp
 
+> **中文**：用本机 Mail.app + MCP，让 AI 帮你从邮件里揪出扣款、续费和安全告警，其余营销信再按需标已读或退订。  
+> **English**: Local Mail.app MCP for AI triage—surface billing, renewals, and security alerts; mark noise read or unsubscribe only when you say so.
+
+**隐私 / Privacy**：All on-device (Mail.app + JXA). Mail stays on your Mac; no cloud inbox sync for this tool. No network by default—HTTP only when you approve unsubscribe.
+
 ## 背景
 
 没有固定「刷邮箱」的习惯，但**支付、订阅、额度超限、安全验证**往往只发邮件；漏看会造成多扣费、服务中断或风险滞后。本 MCP 让 Agent 通过本机 **Mail.app + JXA** 做每日分拣：突出金钱与安全，其余营销/Digest 在你同意后再标已读或退订。
