@@ -26,7 +26,7 @@ from .unsubscribe import (
 )
 
 mcp = FastMCP(
-    "apple-mail-reader",
+    "apple-mail-ai-reader",
     instructions=(
         "Local macOS Mail.app triage. Scan unread/today, classify money vs marketing. "
         "mark_as_read for noise; unsubscribe_message only for marketing/newsletter when execute=true. "

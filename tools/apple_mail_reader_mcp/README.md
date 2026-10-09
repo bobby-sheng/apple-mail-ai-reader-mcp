@@ -1,85 +1,63 @@
-# apple-mail-reader-mcp
+# apple-mail-ai-reader-mcp (package)
 
-<p align="center">
-  <img src="../../docs/mail-app-icon.png" alt="macOS Mail.app" width="72" />
-</p>
+**English** | [中文](README.zh-CN.md) · [Project overview](../../README.md)
 
-> **中文**：用本机 Mail.app + MCP，让 AI 帮你从邮件里揪出扣款、续费和安全告警，其余营销信再按需标已读或退订。  
-> **English**: Local Mail.app MCP for AI triage—surface billing, renewals, and security alerts; mark noise read or unsubscribe only when you say so.
+Standard **MCP (stdio)** server for **macOS Mail.app**: scan, heuristic classification, mark read, unsubscribe (with your confirmation). Works with **Cursor, Codex, Hermes, OpenClaw**, or any MCP host.
 
-**平台 / Platform**：**macOS only.** Requires Apple’s built-in **Mail.app** with at least one account set up. Not for Windows or Linux.
+Mail access: **JXA** (`osascript` → Mail.app). Grant **Automation** (control Mail) to the host app that launches this server.
 
-**隐私 / Privacy**：All on-device (Mail.app + JXA). Mail stays on your Mac; no cloud inbox sync for this tool. No network by default—HTTP only when you approve unsubscribe.
-
-## 背景
-
-没有固定「刷邮箱」的习惯，但**支付、订阅、额度超限、安全验证**往往只发邮件；漏看会造成多扣费、服务中断或风险滞后。本 MCP 让 Agent 通过本机 **Mail.app + JXA** 做每日分拣：突出金钱与安全，其余营销/Digest 在你同意后再标已读或退订。
-
-## 是什么
-
-**标准 MCP（stdio）** 服务，不绑定某一 IDE。凡能挂载 MCP server 的环境都可以用，例如 **Cursor、Codex、Hermes、OpenClaw** 等——由客户端把工具暴露给背后的模型即可。
-
-能力：扫描收件箱、启发式分类、标已读、退订（需你确认）。
-
-读信路径：**JXA**（`osascript` → Mail.app）。在 **隐私与安全性 → 自动化** 中，允许**启动该 MCP 的宿主应用**控制「邮件」；Mail 可在后台运行，不必逐封打开窗口。
-
-可选：`APPLE_MAIL_USE_ENVELOPE=1` 走本地 Envelope Index 加速（需完整磁盘访问，一般不必开）。
+Optional: `APPLE_MAIL_USE_ENVELOPE=1` for Envelope Index (Full Disk Access; usually unnecessary).
 
 ## Requirements
 
-- **macOS**（无其他操作系统支持）
-- 系统自带 **Mail.app** 已安装，且已添加/登录邮箱账号
+- **macOS** only
+- **Mail.app** with at least one account
 - Python **3.11+**
 - [uv](https://github.com/astral-sh/uv) recommended
-- 任意支持 MCP 的客户端
 
 ## Install
 
 ```bash
-cd tools/apple_mail_reader_mcp   # 克隆本仓库后
+cd tools/apple_mail_reader_mcp
 uv sync
-uv run apple-mail-reader-mcp   # stdio MCP smoke test；Ctrl+C 退出
+uv run apple-mail-ai-reader-mcp   # smoke test; Ctrl+C to exit
 ```
 
-## MCP 客户端配置
+Legacy CLI name `apple-mail-reader-mcp` still works (same entry point).
 
-本质是：用 **command** 启动 `apple-mail-reader-mcp`，传输为 **stdio**。各产品配置文件名不同，字段含义相同。
-
-**Cursor**（`mcp.json`）示例：
+## MCP client config
 
 ```json
 {
   "mcpServers": {
-    "apple-mail-reader": {
-      "command": "/absolute/path/to/tools/apple_mail_reader_mcp/.venv/bin/apple-mail-reader-mcp"
+    "apple-mail-ai-reader": {
+      "command": "/absolute/path/to/tools/apple_mail_reader_mcp/.venv/bin/apple-mail-ai-reader-mcp"
     }
   }
 }
 ```
 
-**Codex / Hermes / OpenClaw** 等：在各自的 MCP 设置里填写同样的 `command`（或 `uv run --directory … apple-mail-reader-mcp`），保存后**重启 MCP 或客户端**。
-
-自动化权限授予给**真正跑 osascript 的进程所属 App**（不一定是 Python 本身）。
+Restart the MCP server after config or code changes.
 
 ## Tools
 
 | Tool | Purpose |
 |------|---------|
-| `security_info` | 能力说明与当前后端 |
+| `security_info` | Capabilities and backend |
 | `scan_unread_or_today` | `mode`: `unread` \| `today` \| `unread_today` |
-| `read_message` | 按 RFC `Message-ID` 读正文 |
-| `get_unsubscribe_links` | 解析 List-Unsubscribe（不发 HTTP） |
-| `mark_as_read` | 在 Mail.app 标已读 |
-| `unsubscribe_message` | 预览或执行退订 |
-| `triage_batch` | 批量标已读 + 退订（仅营销/订阅类） |
+| `read_message` | Body by RFC `Message-ID` |
+| `get_unsubscribe_links` | Parse List-Unsubscribe (no HTTP) |
+| `mark_as_read` | Mark read in Mail.app |
+| `unsubscribe_message` | Plan or execute unsubscribe |
+| `triage_batch` | Batch mark read + unsubscribe (marketing/newsletter) |
 
-## Agent 分拣流程（可选）
+## Agent playbook
 
-[`.cursor/skills/apple-mail-reader/SKILL.md`](../../.cursor/skills/apple-mail-reader/SKILL.md) — 中文话术：今日邮件怎么分类、何时标已读/退订。非 Cursor 用户可把该文件内容当作 system / 技能提示给模型。
+[`.cursor/skills/apple-mail-reader/SKILL.md`](../../.cursor/skills/apple-mail-reader/SKILL.md) — triage flow in Chinese.
 
 ## Heuristic categories
 
-`money`, `security`, `transactional`, `marketing`, `newsletter`, `other` — 见 `heuristics.py`，非 ML，金钱与安全请自行确认。
+`money`, `security`, `transactional`, `marketing`, `newsletter`, `other` — see `heuristics.py`; not ML.
 
 ## License
 
